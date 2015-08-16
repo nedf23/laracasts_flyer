@@ -1,2 +1,7 @@
-// @import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
+@import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
 
+@import "particals/forms";
+
+body {
+    padding-top: 70px;
+}
