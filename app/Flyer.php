@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Photo;
+use App\User;
 
 class Flyer extends Model
 {
@@ -18,7 +19,7 @@ class Flyer extends Model
     {
         $street = str_replace('-', ' ', $street);
 
-        return static::where(compact('zip', 'street'))->first();
+        return static::where(compact('zip', 'street'))->firstOrFail();
     }
 
     public function getPriceAttribute($price)
@@ -29,5 +30,15 @@ class Flyer extends Model
     public function addPhoto(Photo $photo)
     {
         return $this->photos()->save($photo);
+    }
+
+    public function owner()
+    {
+        return $this->belongsTo('App\User', 'user_id');
+    }
+
+    public function ownedBy(User $user)
+    {
+        return $this->user->id == $user->id;
     }
 }

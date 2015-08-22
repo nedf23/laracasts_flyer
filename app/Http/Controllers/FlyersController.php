@@ -4,26 +4,24 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+
 use App\Http\Requests\FlyerRequest;
+use App\Http\Requests\ChangeFlyerRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\AuthorizesUsers;
 use App\Flyer;
 use App\Photo;
 
 class FlyersController extends Controller
 {
+    // use AuthorizesUsers;
+
     public function __construct()
     {
-        $this->middleware('auth');
-    }
+        parent::__construct();
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return Response
-     */
-    public function index()
-    {
-        //
+       $this->middleware('auth', ['except' => ['show']]);
     }
 
     /**
@@ -64,50 +62,16 @@ class FlyersController extends Controller
         return view('flyers.show', compact('flyer'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function edit($id)
+    public function addPhoto($zip, $street, ChangeFlyerRequest $request)
     {
-        //
+        $photo = $this->makePhoto($request->file('photo'));
+
+        Flyer::locatedAt($zip, $street)->addPhoto($photo);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  Request  $request
-     * @param  int  $id
-     * @return Response
-     */
-    public function update(Request $request, $id)
+    protected function makePhoto(UploadedFile $file)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
-
-    public function addPhoto($zip, $street, Request $request)
-    {
-        $this->validate($request, [
-            'photo' => 'required|mimes:jpg,jpeg,png,bmp'
-        ]);
-
-        $photo = Photo::fromForm($request->file('photo'));
-
-        $flyer = Flyer::locatedAt($zip, $street)->addPhoto($photo);
-
-        return 'Done';
+        return Photo::named($file->getClientOriginalName())
+            ->move($file);
     }
 }
